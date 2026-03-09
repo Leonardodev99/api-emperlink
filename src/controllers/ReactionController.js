@@ -4,7 +4,7 @@ import Post from '../models/Post.js';
 
 class ReactionController {
 
-  // 📌 Criar reação
+  // Criar reação
   async store(req, res) {
     try {
       const { user_id, post_id, type } = req.body;
@@ -53,7 +53,7 @@ class ReactionController {
     }
   }
 
-  // 📌 Listar reações de um post
+  // Listar reações de um post
   async reactionsByPost(req, res) {
     try {
       const { post_id } = req.params;
@@ -78,7 +78,7 @@ class ReactionController {
     }
   }
 
-  // 📌 Contagem de reações por tipo
+  // Contagem de reações por tipo
   async countByType(req, res) {
     try {
       const { post_id } = req.params;
@@ -103,7 +103,7 @@ class ReactionController {
     }
   }
 
-  // 📌 Remover reação
+  // Remover reação
   async delete(req, res) {
     try {
       const { id } = req.params;

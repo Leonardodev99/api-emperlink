@@ -4,12 +4,20 @@ import User from '../models/User.js';
 
 class GroupMemberController {
 
-  // 📌 Entrar num grupo
+  // Entrar num grupo
   async join(req, res) {
     try {
 
       const { group_id } = req.params;
       const { user_id } = req.body;
+
+      const user = await User.findByPk(user_id);
+
+      if (!user) {
+        return res.status(404).json({
+          error: 'Utilizador não encontrado'
+        });
+      }
 
       const group = await Group.findByPk(group_id);
 
@@ -47,7 +55,7 @@ class GroupMemberController {
     }
   }
 
-  // 📌 Sair do grupo
+  // Sair do grupo
   async leave(req, res) {
     try {
 
@@ -80,7 +88,7 @@ class GroupMemberController {
     }
   }
 
-  // 📌 Listar membros do grupo
+  // Listar membros do grupo
   async members(req, res) {
     try {
 
@@ -105,7 +113,7 @@ class GroupMemberController {
     }
   }
 
-  // 📌 Promover membro a admin
+  // Promover membro a admin
   async promote(req, res) {
     try {
 

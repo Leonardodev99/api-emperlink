@@ -7,9 +7,10 @@ router.post('/', GroupController.store);
 
 router.get('/', GroupController.index);
 
+router.get('/users/:user_id/groups', GroupController.groupsByUser);
+
 router.get('/:id', GroupController.show);
 
-router.get('/users/:user_id/groups', GroupController.groupsByUser);
 
 router.put('/:id', GroupController.update);
 

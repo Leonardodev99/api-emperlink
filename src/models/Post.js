@@ -50,15 +50,18 @@ export default class Post extends Model {
     });
 
     this.hasMany(models.Comment, {
-      foreignKey: 'post_id'
+      foreignKey: 'post_id',
+      as: 'comments'
     });
 
     this.hasMany(models.Reaction, {
-      foreignKey: 'post_id'
+      foreignKey: 'post_id',
+      as: 'reactions'
     });
 
     this.hasMany(models.PostImage, {
-      foreignKey: 'post_id'
+      foreignKey: 'post_id',
+      as: 'images'
     });
 
     this.belongsToMany(models.Hashtag, {

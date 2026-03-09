@@ -40,7 +40,7 @@ class PostController {
         include: [
           {
             model: User,
-            as: 'user',
+            as: 'author',
             attributes: ['id', 'name', 'profile_image']
           },
           {
@@ -77,7 +77,7 @@ class PostController {
         include: [
           {
             model: User,
-            as: 'user',
+            as: 'author',
             attributes: ['id', 'name', 'profile_image']
           },
           {
