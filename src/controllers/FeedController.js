@@ -1,0 +1,148 @@
+import Post from '../models/Post.js';
+import User from '../models/User.js';
+import Follow from '../models/Follow.js';
+import GroupMember from '../models/GroupMember.js';
+import PostImage from '../models/PostImage.js';
+import Hashtag from '../models/Hashtag.js';
+
+class FeedController {
+
+  // 📢 Feed personalizado
+  async userFeed(req, res) {
+    try {
+
+      const { user_id } = req.params;
+
+      // utilizadores que o user segue
+      const follows = await Follow.findAll({
+        where: { follower_id: user_id },
+        attributes: ['following_id']
+      });
+
+      const followingIds = follows.map(f => f.following_id);
+
+      // incluir o próprio user
+      followingIds.push(Number(user_id));
+
+      // posts de pessoas que segue
+      const posts = await Post.findAll({
+
+        where: {
+          user_id: followingIds
+        },
+
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'name', 'profile_image']
+          },
+          {
+            model: PostImage,
+            as: 'images',
+            attributes: ['id', 'image_url']
+          },
+          {
+            model: Hashtag,
+            as: 'hashtags',
+            attributes: ['name'],
+            through: { attributes: [] }
+          }
+        ],
+
+        order: [['created_at', 'DESC']],
+
+        limit: 50
+      });
+
+      return res.json(posts);
+
+    } catch (error) {
+
+      return res.status(500).json({
+        error: 'Erro ao gerar feed'
+      });
+
+    }
+  }
+
+  // 🌍 Feed global (posts recentes da rede)
+  async globalFeed(req, res) {
+
+    try {
+
+      const posts = await Post.findAll({
+
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'name', 'profile_image']
+          },
+          {
+            model: PostImage,
+            as: 'images',
+            attributes: ['id', 'image_url']
+          }
+        ],
+
+        order: [['created_at', 'DESC']],
+
+        limit: 50
+      });
+
+      return res.json(posts);
+
+    } catch (error) {
+
+      return res.status(500).json({
+        error: 'Erro ao gerar feed global'
+      });
+
+    }
+
+  }
+
+  // 👥 Feed de grupos
+  async groupFeed(req, res) {
+
+    try {
+
+      const { user_id } = req.params;
+
+      const groups = await GroupMember.findAll({
+        where: { user_id },
+        attributes: ['group_id']
+      });
+
+      const groupIds = groups.map(g => g.group_id);
+
+      const posts = await Post.findAll({
+
+        where: {
+          group_id: groupIds
+        },
+
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'name', 'profile_image']
+          }
+        ],
+
+        order: [['created_at', 'DESC']]
+      });
+
+      return res.json(posts);
+
+    } catch (error) {
+
+      return res.status(500).json({
+        error: 'Erro ao gerar feed de grupos'
+      });
+
+    }
+
+  }
+
+}
+
+export default new FeedController();
