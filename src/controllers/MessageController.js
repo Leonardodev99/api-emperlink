@@ -1,12 +1,14 @@
 import Message from '../models/Message.js';
 import User from '../models/User.js';
 import { Op } from 'sequelize';
+import { getIO } from '../socket.js';
 
 class MessageController {
 
   // 📌 Enviar mensagem
   async store(req, res) {
     try {
+
       const { sender_id, receiver_id, content } = req.body;
 
       const sender = await User.findByPk(sender_id);
@@ -30,12 +32,19 @@ class MessageController {
         content
       });
 
+      // 🔥 SOCKET EVENT
+      const io = getIO();
+
+      io.to(receiver_id).emit('new_message', message);
+
       return res.status(201).json(message);
 
     } catch (error) {
+
       return res.status(400).json({
         errors: error.errors?.map(err => err.message) || [error.message]
       });
+
     }
   }
 
