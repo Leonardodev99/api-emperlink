@@ -3,7 +3,7 @@ import User from '../models/User.js';
 
 class ReportController {
 
-  // 🚩 Criar denúncia
+  // Criar denúncia
   async store(req, res) {
     try {
 
@@ -41,7 +41,7 @@ class ReportController {
     }
   }
 
-  // 📋 Listar todas as denúncias
+  // Listar todas as denúncias
   async index(req, res) {
     try {
 
@@ -70,7 +70,7 @@ class ReportController {
     }
   }
 
-  // 🔎 Ver denúncia específica
+  // Ver denúncia específica
   async show(req, res) {
     try {
 
@@ -93,7 +93,7 @@ class ReportController {
     }
   }
 
-  // ✅ Atualizar estado da denúncia (admin)
+  // Atualizar estado da denúncia (admin)
   async updateStatus(req, res) {
     try {
 
@@ -122,7 +122,7 @@ class ReportController {
     }
   }
 
-  // 🗑 Remover denúncia
+  // Remover denúncia
   async delete(req, res) {
     try {
 

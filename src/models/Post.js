@@ -9,6 +9,10 @@ export default class Post extends Model {
           primaryKey: true,
           defaultValue: Sequelize.UUIDV4
         },
+        group_id: {
+          type: Sequelize.UUID,
+          allowNull: true
+        },
 
         content: {
           type: Sequelize.TEXT,

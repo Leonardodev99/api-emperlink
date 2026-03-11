@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import Post from '../models/Post.js';
 import User from '../models/User.js';
 import Follow from '../models/Follow.js';
@@ -22,18 +23,21 @@ class FeedController {
       const followingIds = follows.map(f => f.following_id);
 
       // incluir o próprio user
-      followingIds.push(Number(user_id));
+      followingIds.push(user_id);
 
       // posts de pessoas que segue
       const posts = await Post.findAll({
 
         where: {
-          user_id: followingIds
+          user_id: {
+            [Op.in]: followingIds
+          }
         },
 
         include: [
           {
             model: User,
+            as: 'author',
             attributes: ['id', 'name', 'profile_image']
           },
           {
@@ -43,7 +47,6 @@ class FeedController {
           },
           {
             model: Hashtag,
-            as: 'hashtags',
             attributes: ['name'],
             through: { attributes: [] }
           }
@@ -57,11 +60,10 @@ class FeedController {
       return res.json(posts);
 
     } catch (error) {
-
+      console.error(error);
       return res.status(500).json({
-        error: 'Erro ao gerar feed'
+        error: error.message
       });
-
     }
   }
 
@@ -75,6 +77,7 @@ class FeedController {
         include: [
           {
             model: User,
+            as: 'author',
             attributes: ['id', 'name', 'profile_image']
           },
           {
@@ -92,11 +95,10 @@ class FeedController {
       return res.json(posts);
 
     } catch (error) {
-
+      console.error(error);
       return res.status(500).json({
-        error: 'Erro ao gerar feed global'
+        error: error.message
       });
-
     }
 
   }
@@ -116,31 +118,29 @@ class FeedController {
       const groupIds = groups.map(g => g.group_id);
 
       const posts = await Post.findAll({
-
         where: {
-          group_id: groupIds
+          group_id: {
+            [Op.in]: groupIds
+          }
         },
-
         include: [
           {
             model: User,
+            as: 'author',
             attributes: ['id', 'name', 'profile_image']
           }
         ],
-
         order: [['created_at', 'DESC']]
       });
 
       return res.json(posts);
 
     } catch (error) {
-
+      console.error(error);
       return res.status(500).json({
-        error: 'Erro ao gerar feed de grupos'
+        error: error.message
       });
-
     }
-
   }
 
 }
