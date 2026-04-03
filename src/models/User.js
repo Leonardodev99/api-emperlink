@@ -51,6 +51,11 @@ export default class User extends Model {
           defaultValue: 'client',
         },
 
+        avatar: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
+
         bio: {
           type: Sequelize.TEXT
         },
