@@ -20,6 +20,7 @@ import groupMemberRoutes from './src/routes/groupMemberRoutes';
 import ratingRoutes from './src/routes/ratingRoutes';
 import reportRoutes from './src/routes/reportRoutes';
 import feedRoutes from './src/routes/feedRoutes';
+import tokenRoutes from './src/routes/tokenRoutes';
 
 
 class App {
@@ -49,6 +50,7 @@ class App {
     this.app.use('/ratings', ratingRoutes);
     this.app.use('/reports', reportRoutes);
     this.app.use('/feed', feedRoutes);
+    this.app.use('/tokens', tokenRoutes);
 
   }
 }
