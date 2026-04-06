@@ -84,6 +84,11 @@ class FeedController {
             model: PostImage,
             as: 'images',
             attributes: ['id', 'image_url']
+          },
+          {
+            model: Hashtag,
+            attributes: ['name'],
+            through: { attributes: [] }
           }
         ],
 

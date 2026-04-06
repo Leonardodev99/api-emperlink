@@ -3,12 +3,19 @@ import User from '../models/User.js';
 import PostImage from '../models/PostImage.js';
 import Comment from '../models/Comment.js';
 import Reaction from '../models/Reaction.js';
+import Hashtag from '../models/Hashtag.js';
+import { v4 as uuidv4 } from 'uuid';
 
 class PostController {
 
   // 📌 Criar post
   async store(req, res) {
     try {
+
+      const extractHashtags = (text) => {
+        const matches = text.match(/#([\p{L}\p{N}_]+)/gu);
+        return matches ? matches.map(tag => tag.toLowerCase().replace('#', '')) : [];
+      };
       const { user_id, content } = req.body;
 
       const user = await User.findByPk(user_id);
@@ -24,14 +31,51 @@ class PostController {
         content
       });
 
-      return res.status(201).json(post);
+      if (req.files && req.files.length > 0) {
+        const images = req.files.map(file => ({
+          post_id: post.id,
+          image_url: file.filename
+        }));
+
+        await PostImage.bulkCreate(images);
+      }
+
+      // 🔥 HASHTAGS
+      const hashtags = extractHashtags(content);
+
+      if (hashtags.length > 0) {
+        const hashtagInstances = [];
+
+        for (const tag of hashtags) {
+          let hashtag = await Hashtag.findOne({ where: { name: tag } });
+
+          if (!hashtag) {
+            hashtag = await Hashtag.create({
+              id: uuidv4(),
+              name: tag
+            });
+          }
+
+          hashtagInstances.push(hashtag);
+        }
+
+        await post.addHashtags(hashtagInstances);
+      }
+
+      return res.status(201).json({
+        message: 'Post criado com sucesso',
+        post
+      });
 
     } catch (error) {
+      console.log(error);
       return res.status(400).json({
         errors: error.errors?.map(err => err.message) || [error.message]
       });
     }
   }
+
+
 
   // 📌 Listar posts
   async index(req, res) {
@@ -52,6 +96,12 @@ class PostController {
             as: 'comments'
           },
           {
+            model: Hashtag,
+            as: 'hashtags',
+            attributes: ['id', 'name'],
+            through: { attributes: [] } // remove tabela pivot da resposta
+          },
+          {
             model: Reaction,
             as: 'reactions'
           }
@@ -62,6 +112,7 @@ class PostController {
       return res.json(posts);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar posts'
       });
@@ -89,6 +140,12 @@ class PostController {
             as: 'comments'
           },
           {
+            model: Hashtag,
+            as: 'hashtags',
+            attributes: ['id', 'name'],
+            through: { attributes: [] } // remove tabela pivot da resposta
+          },
+          {
             model: Reaction,
             as: 'reactions'
           }
@@ -104,6 +161,7 @@ class PostController {
       return res.json(post);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar post'
       });
@@ -133,6 +191,7 @@ class PostController {
       return res.json(posts);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar posts do utilizador'
       });
@@ -186,8 +245,62 @@ class PostController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover post'
+      });
+    }
+  }
+
+  async postsByHashtag(req, res) {
+    try {
+      const { name } = req.params;
+
+      // normalizar
+      const hashtagName = name.toLowerCase();
+
+      const hashtag = await Hashtag.findOne({
+        where: { name: hashtagName },
+        include: [
+          {
+            model: Post,
+            as: 'posts',
+            include: [
+              {
+                model: User,
+                as: 'author',
+                attributes: ['id', 'name', 'profile_image']
+              },
+              {
+                model: PostImage,
+                as: 'images'
+              },
+              {
+                model: Reaction,
+                as: 'reactions'
+              }
+            ],
+            through: { attributes: [] }
+          }
+        ]
+      });
+
+      if (!hashtag) {
+        return res.status(404).json({
+          error: 'Hashtag não encontrada'
+        });
+      }
+
+      return res.json({
+        hashtag: hashtag.name,
+        total_posts: hashtag.posts.length,
+        posts: hashtag.posts
+      });
+
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error: 'Erro ao buscar posts por hashtag'
       });
     }
   }

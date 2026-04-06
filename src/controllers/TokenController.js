@@ -25,13 +25,6 @@ class TokenController {
         });
       }
 
-      /* Verifica se está ativo
-      if (!user.ativo) {
-        return res.status(403).json({
-          error: 'Usuário inativo. Contacte a administração.'
-        });
-      }*/
-
       // Verifica senha
       const passwordValid = await user.checkPassword(password);
 

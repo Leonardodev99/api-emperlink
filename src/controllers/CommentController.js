@@ -59,6 +59,7 @@ class CommentController {
       return res.json(comments);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar comentários'
       });
@@ -89,6 +90,7 @@ class CommentController {
       return res.json(comment);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar comentário'
       });
@@ -142,6 +144,7 @@ class CommentController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover comentário'
       });

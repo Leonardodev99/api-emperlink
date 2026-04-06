@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class Hashtag extends Model {
   static init(sequelize) {
@@ -21,12 +22,20 @@ export default class Hashtag extends Model {
             }
           }
         }
-
       },
       {
         sequelize,
         tableName: 'hashtags',
-        underscored: true
+        underscored: true,
+
+        // ✅ AGORA ESTÁ CORRETO
+        hooks: {
+          beforeCreate: (hashtag) => {
+            if (!hashtag.id) {
+              hashtag.id = uuidv4();
+            }
+          }
+        }
       }
     );
 
@@ -34,12 +43,10 @@ export default class Hashtag extends Model {
   }
 
   static associate(models) {
-
     this.belongsToMany(models.Post, {
       through: 'post_hashtags',
       foreignKey: 'hashtag_id',
-      as: 'hashtags'
+      as: 'posts'
     });
-
   }
 }

@@ -72,6 +72,7 @@ class ReactionController {
       return res.json(reactions);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar reações'
       });
@@ -97,6 +98,7 @@ class ReactionController {
       return res.json(count);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao contar reações'
       });
@@ -123,6 +125,7 @@ class ReactionController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover reação'
       });

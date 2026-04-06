@@ -14,9 +14,13 @@ export default class PostImage extends Model {
           type: Sequelize.STRING,
           allowNull: false,
           validate: {
-            isUrl: {
-              msg: 'URL da imagem inválida'
-            }
+            isUrl: false // pode remover isso se estiver validando URL
+          },
+          get() {
+            const value = this.getDataValue('image_url');
+            if (!value) return null;
+
+            return `${process.env.APP_URL}/images/${value}`;
           }
         }
 

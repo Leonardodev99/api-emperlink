@@ -66,6 +66,7 @@ class MessageController {
       return res.json(messages);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao carregar conversa'
       });
@@ -90,6 +91,7 @@ class MessageController {
       return res.json(messages);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao carregar inbox'
       });
@@ -118,6 +120,7 @@ class MessageController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao atualizar mensagem'
       });
@@ -144,6 +147,7 @@ class MessageController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover mensagem'
       });

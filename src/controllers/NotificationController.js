@@ -44,6 +44,7 @@ class NotificationController {
       return res.json(notifications);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar notificações'
       });
@@ -73,6 +74,7 @@ class NotificationController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao atualizar notificação'
       });
@@ -96,6 +98,7 @@ class NotificationController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao atualizar notificações'
       });
@@ -122,6 +125,7 @@ class NotificationController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover notificação'
       });

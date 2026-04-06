@@ -70,7 +70,8 @@ export default class Post extends Model {
 
     this.belongsToMany(models.Hashtag, {
       through: 'post_hashtags',
-      foreignKey: 'post_id'
+      foreignKey: 'post_id',
+      as: 'hashtags'
     });
 
   }

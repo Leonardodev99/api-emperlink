@@ -61,6 +61,7 @@ class RatingController {
       return res.json(ratings);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar avaliações'
       });
@@ -96,6 +97,7 @@ class RatingController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao calcular média'
       });
@@ -151,6 +153,7 @@ class RatingController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover avaliação'
       });

@@ -43,6 +43,7 @@ class ProfileController {
       return res.json(profiles);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar perfis'
       });
@@ -73,6 +74,7 @@ class ProfileController {
       return res.json(profile);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar perfil'
       });
@@ -104,6 +106,7 @@ class ProfileController {
       return res.json(profile);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar perfil'
       });
@@ -192,6 +195,7 @@ class ProfileController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover perfil'
       });

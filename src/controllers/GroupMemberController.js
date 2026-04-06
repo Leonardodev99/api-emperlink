@@ -49,6 +49,7 @@ class GroupMemberController {
       return res.status(201).json(member);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao entrar no grupo'
       });
@@ -82,6 +83,7 @@ class GroupMemberController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao sair do grupo'
       });
@@ -107,6 +109,7 @@ class GroupMemberController {
       return res.json(members);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar membros'
       });
@@ -143,6 +146,7 @@ class GroupMemberController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao promover membro'
       });

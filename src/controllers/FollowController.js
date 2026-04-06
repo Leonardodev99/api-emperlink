@@ -44,6 +44,7 @@ class FollowController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao seguir utilizador'
       });
@@ -72,6 +73,7 @@ class FollowController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao deixar de seguir'
       });
@@ -97,6 +99,7 @@ class FollowController {
       return res.json(followers);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar seguidores'
       });
@@ -122,6 +125,7 @@ class FollowController {
       return res.json(following);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar following'
       });
@@ -142,6 +146,7 @@ class FollowController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao verificar follow'
       });

@@ -48,6 +48,7 @@ class GroupController {
       return res.json(groups);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar grupos'
       });
@@ -78,6 +79,7 @@ class GroupController {
       return res.json(group);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar grupo'
       });
@@ -97,6 +99,7 @@ class GroupController {
       return res.json(groups);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar grupos do utilizador'
       });
@@ -150,6 +153,7 @@ class GroupController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover grupo'
       });

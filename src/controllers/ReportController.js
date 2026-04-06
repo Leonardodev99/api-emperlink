@@ -64,6 +64,7 @@ class ReportController {
       return res.json(reports);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar denúncias'
       });
@@ -87,6 +88,7 @@ class ReportController {
       return res.json(report);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar denúncia'
       });
@@ -143,6 +145,7 @@ class ReportController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover denúncia'
       });

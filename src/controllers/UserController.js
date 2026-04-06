@@ -20,6 +20,44 @@ class UserController {
     }
   }
 
+
+  //Atualizar a foto do perfil
+  async uploadProfileImage(req, res) {
+    try {
+
+      const user = await User.findByPk(req.userId);
+
+      if (!user) {
+        return res.status(404).json({
+          error: 'Usuário não encontrado'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: 'Nenhum ficheiro enviado'
+        });
+      }
+
+      user.profile_image = req.file.filename;
+
+      await user.save();
+
+      const profileImageUrl = `${process.env.APP_URL}/images/${user.profile_image}`;
+
+      return res.json({
+        message: 'Foto do perfil atualizada com sucesso',
+        profile_image: profileImageUrl
+      });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: 'Erro ao fazer upload'
+      });
+    }
+  }
+
   // 📌 Listar utilizadores
   async index(req, res) {
     try {
@@ -40,6 +78,7 @@ class UserController {
 
       return res.json(users);
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao listar utilizadores'
       });
@@ -75,6 +114,7 @@ class UserController {
       return res.json(user);
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao buscar utilizador'
       });
@@ -128,6 +168,7 @@ class UserController {
       });
 
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error: 'Erro ao remover utilizador'
       });
