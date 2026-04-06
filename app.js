@@ -21,6 +21,7 @@ import ratingRoutes from './src/routes/ratingRoutes';
 import reportRoutes from './src/routes/reportRoutes';
 import feedRoutes from './src/routes/feedRoutes';
 import tokenRoutes from './src/routes/tokenRoutes';
+import passwordResetRoutes from './src/routes/passwordResetRoutes';
 
 
 class App {
@@ -51,6 +52,7 @@ class App {
     this.app.use('/reports', reportRoutes);
     this.app.use('/feed', feedRoutes);
     this.app.use('/tokens', tokenRoutes);
+    this.app.use('/password', passwordResetRoutes);
 
   }
 }
