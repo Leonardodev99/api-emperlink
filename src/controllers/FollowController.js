@@ -1,5 +1,6 @@
 import Follow from '../models/Follow.js';
 import User from '../models/User.js';
+import NotificationService from '../services/NotificationService.js';
 
 class FollowController {
 
@@ -37,6 +38,15 @@ class FollowController {
         follower_id,
         following_id
       });
+
+      // 🔔 NOTIFICAÇÃO AUTOMÁTICA
+      if (follower_id !== following_id) {
+        await NotificationService.send({
+          user_id: following.id,       // quem recebe
+          type: 'new_follower',
+          reference_id: follower.id    // quem seguiu
+        });
+      }
 
       return res.status(201).json({
         message: 'Agora está a seguir este utilizador',

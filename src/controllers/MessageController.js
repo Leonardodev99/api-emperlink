@@ -2,6 +2,7 @@ import Message from '../models/Message.js';
 import User from '../models/User.js';
 import { Op } from 'sequelize';
 import { getIO } from '../socket.js';
+import NotificationService from '../services/NotificationService.js';
 
 class MessageController {
 
@@ -32,10 +33,18 @@ class MessageController {
         content
       });
 
-      // 🔥 SOCKET EVENT
+      // 🔥 SOCKET EVENT (tempo real)
       const io = getIO();
-
       io.to(receiver_id).emit('new_message', message);
+
+      // 🔔 NOTIFICAÇÃO AUTOMÁTICA
+      if (sender_id !== receiver_id) {
+        await NotificationService.send({
+          user_id: receiver_id,     // quem recebe
+          type: 'new_message',
+          reference_id: message.id  // referência da mensagem
+        });
+      }
 
       return res.status(201).json(message);
 

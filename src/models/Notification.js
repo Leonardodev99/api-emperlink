@@ -18,6 +18,10 @@ export default class Notification extends Model {
             'new_message'
           )
         },
+        reference_id: {
+          type: Sequelize.UUID,
+          allowNull: true
+        },
 
         is_read: {
           type: Sequelize.BOOLEAN,

@@ -1,6 +1,7 @@
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Post from '../models/Post.js';
+import NotificationService from '../services/NotificationService.js';
 
 class CommentController {
 
@@ -29,6 +30,15 @@ class CommentController {
         post_id,
         content
       });
+
+      // 🔔 NOTIFICAÇÃO AUTOMÁTICA
+      if (post.user_id !== user_id) {
+        await NotificationService.send({
+          user_id: post.user_id,   // dono do post
+          type: 'new_comment',
+          reference_id: comment.id
+        });
+      }
 
       return res.status(201).json(comment);
 
