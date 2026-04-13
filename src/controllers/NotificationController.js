@@ -2,10 +2,10 @@ import Notification from '../models/Notification.js';
 
 class NotificationController {
 
-  // 📌 Listar notificações de um utilizador
+  // 📌 Listar notificações (do próprio utilizador)
   async index(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId; // 🔐 do token
 
       const notifications = await Notification.findAll({
         where: { user_id },
@@ -22,10 +22,11 @@ class NotificationController {
     }
   }
 
-  // 📌 Marcar notificação como lida
+  // 📌 Marcar como lida
   async markAsRead(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const notification = await Notification.findByPk(id);
 
@@ -35,9 +36,14 @@ class NotificationController {
         });
       }
 
-      await notification.update({
-        is_read: true
-      });
+      // 🔐 só o dono pode marcar
+      if (notification.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão'
+        });
+      }
+
+      await notification.update({ is_read: true });
 
       return res.json({
         message: 'Notificação marcada como lida',
@@ -52,10 +58,10 @@ class NotificationController {
     }
   }
 
-  // 📌 Marcar todas notificações como lidas
+  // 📌 Marcar todas como lidas
   async markAllAsRead(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId; // 🔐
 
       await Notification.update(
         { is_read: true },
@@ -80,12 +86,20 @@ class NotificationController {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const notification = await Notification.findByPk(id);
 
       if (!notification) {
         return res.status(404).json({
           error: 'Notificação não encontrada'
+        });
+      }
+
+      // 🔐 só o dono pode apagar
+      if (notification.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão'
         });
       }
 

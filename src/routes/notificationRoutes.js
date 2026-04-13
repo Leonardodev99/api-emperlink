@@ -1,16 +1,22 @@
 import { Router } from 'express';
 import NotificationController from '../controllers/NotificationController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = new Router();
 
-router.post('/', NotificationController.store);
+// 🔐 tudo protegido
+router.use(authMiddleware);
 
-router.get('/:user_id', NotificationController.index);
+// 🔔 Minhas notificações
+router.get('/', NotificationController.index);
 
+// ✔ Marcar uma como lida
 router.put('/read/:id', NotificationController.markAsRead);
 
-router.put('/read-all/:user_id', NotificationController.markAllAsRead);
+// ✔ Marcar todas
+router.put('/read-all', NotificationController.markAllAsRead);
 
+// ❌ Remover
 router.delete('/:id', NotificationController.delete);
 
 export default router;

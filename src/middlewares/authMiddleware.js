@@ -14,22 +14,22 @@ export default async (req, res, next) => {
     const [, token] = authorization.split(' ');
 
     try {
-      const dados = jwt.verify(token, process.env.TOKEN_SECRET);
+      const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
 
-      const { id, email, tipo } = dados;
+      const { id, email, user_type } = decoded;
 
       const user = await User.findByPk(id);
 
-      if (!user || !user.ativo) {
+      if (!user) {
         return res.status(401).json({
-          error: 'Usuário inválido ou inativo'
+          error: 'Usuário inválido'
         });
       }
 
-      // 🔐 Dados disponíveis na requisição
+      // 🔐 Dados disponíveis na request
       req.userId = id;
       req.userEmail = email;
-      req.userTipo = tipo;
+      req.userRole = user_type;
 
       return next();
 

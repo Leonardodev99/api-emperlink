@@ -6,7 +6,8 @@ class GroupController {
   // 📌 Criar grupo
   async store(req, res) {
     try {
-      const { name, description, creator_id } = req.body;
+      const { name, description } = req.body;
+      const creator_id = req.userId; // 🔐 vem do token
 
       const user = await User.findByPk(creator_id);
 
@@ -27,6 +28,74 @@ class GroupController {
     } catch (error) {
       return res.status(400).json({
         errors: error.errors?.map(err => err.message) || [error.message]
+      });
+    }
+  }
+
+  // 📌 Atualizar grupo (somente dono)
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+
+      const group = await Group.findByPk(id);
+
+      if (!group) {
+        return res.status(404).json({
+          error: 'Grupo não encontrado'
+        });
+      }
+
+      // 🔐 só o criador pode editar
+      if (group.creator_id !== req.userId) {
+        return res.status(403).json({
+          error: 'Sem permissão para editar este grupo'
+        });
+      }
+
+      await group.update(req.body);
+
+      return res.json({
+        message: 'Grupo atualizado com sucesso',
+        group
+      });
+
+    } catch (error) {
+      return res.status(400).json({
+        errors: error.errors?.map(err => err.message) || [error.message]
+      });
+    }
+  }
+
+  // 📌 Remover grupo (somente dono)
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+
+      const group = await Group.findByPk(id);
+
+      if (!group) {
+        return res.status(404).json({
+          error: 'Grupo não encontrado'
+        });
+      }
+
+      // 🔐 só o criador pode deletar
+      if (group.creator_id !== req.userId) {
+        return res.status(403).json({
+          error: 'Sem permissão para remover este grupo'
+        });
+      }
+
+      await group.destroy();
+
+      return res.json({
+        message: 'Grupo removido com sucesso'
+      });
+
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error: 'Erro ao remover grupo'
       });
     }
   }
@@ -86,10 +155,10 @@ class GroupController {
     }
   }
 
-  // 📌 Listar grupos criados por um utilizador
-  async groupsByUser(req, res) {
+  // 📌 Grupos do próprio usuário
+  async myGroups(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId;
 
       const groups = await Group.findAll({
         where: { creator_id: user_id },
@@ -101,61 +170,7 @@ class GroupController {
     } catch (error) {
       console.log(error);
       return res.status(500).json({
-        error: 'Erro ao listar grupos do utilizador'
-      });
-    }
-  }
-
-  // 📌 Atualizar grupo
-  async update(req, res) {
-    try {
-      const { id } = req.params;
-
-      const group = await Group.findByPk(id);
-
-      if (!group) {
-        return res.status(404).json({
-          error: 'Grupo não encontrado'
-        });
-      }
-
-      await group.update(req.body);
-
-      return res.json({
-        message: 'Grupo atualizado com sucesso',
-        group
-      });
-
-    } catch (error) {
-      return res.status(400).json({
-        errors: error.errors?.map(err => err.message) || [error.message]
-      });
-    }
-  }
-
-  // 📌 Remover grupo
-  async delete(req, res) {
-    try {
-      const { id } = req.params;
-
-      const group = await Group.findByPk(id);
-
-      if (!group) {
-        return res.status(404).json({
-          error: 'Grupo não encontrado'
-        });
-      }
-
-      await group.destroy();
-
-      return res.json({
-        message: 'Grupo removido com sucesso'
-      });
-
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        error: 'Erro ao remover grupo'
+        error: 'Erro ao listar seus grupos'
       });
     }
   }

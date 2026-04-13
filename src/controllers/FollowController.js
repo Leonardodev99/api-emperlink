@@ -7,7 +7,8 @@ class FollowController {
   // 📌 Seguir utilizador
   async follow(req, res) {
     try {
-      const { follower_id, following_id } = req.body;
+      const follower_id = req.userId; // 🔐 vem do token
+      const { following_id } = req.body;
 
       if (follower_id === following_id) {
         return res.status(400).json({
@@ -15,10 +16,9 @@ class FollowController {
         });
       }
 
-      const follower = await User.findByPk(follower_id);
       const following = await User.findByPk(following_id);
 
-      if (!follower || !following) {
+      if (!following) {
         return res.status(404).json({
           error: 'Utilizador não encontrado'
         });
@@ -39,14 +39,12 @@ class FollowController {
         following_id
       });
 
-      // 🔔 NOTIFICAÇÃO AUTOMÁTICA
-      if (follower_id !== following_id) {
-        await NotificationService.send({
-          user_id: following.id,       // quem recebe
-          type: 'new_follower',
-          reference_id: follower.id    // quem seguiu
-        });
-      }
+      // 🔔 NOTIFICAÇÃO
+      await NotificationService.send({
+        user_id: following_id,
+        type: 'new_follower',
+        reference_id: follower_id
+      });
 
       return res.status(201).json({
         message: 'Agora está a seguir este utilizador',
@@ -60,11 +58,11 @@ class FollowController {
       });
     }
   }
-
   // 📌 Deixar de seguir
   async unfollow(req, res) {
     try {
-      const { follower_id, following_id } = req.body;
+      const follower_id = req.userId;
+      const { following_id } = req.body;
 
       const follow = await Follow.findOne({
         where: { follower_id, following_id }
@@ -93,7 +91,7 @@ class FollowController {
   // 📌 Listar seguidores
   async followers(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId;
 
       const followers = await Follow.findAll({
         where: { following_id: user_id },
@@ -119,7 +117,7 @@ class FollowController {
   // 📌 Listar quem o utilizador segue
   async following(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId;
 
       const following = await Follow.findAll({
         where: { follower_id: user_id },
@@ -145,7 +143,8 @@ class FollowController {
   // 📌 Verificar se segue
   async checkFollow(req, res) {
     try {
-      const { follower_id, following_id } = req.params;
+      const follower_id = req.userId;
+      const { following_id } = req.params;
 
       const follow = await Follow.findOne({
         where: { follower_id, following_id }

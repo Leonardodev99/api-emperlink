@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import FeedController from '../controllers/FeedController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = new Router();
 
+// 🔐 proteger tudo
+router.use(authMiddleware);
+
+// 🌍 Feed global
 router.get('/global', FeedController.globalFeed);
 
-router.get('/groups/:user_id', FeedController.groupFeed);
+// 👥 Feed de grupos
+router.get('/groups', FeedController.groupFeed);
 
-router.get('/:user_id', FeedController.userFeed);
+// 📢 Feed personalizado
+router.get('/user', FeedController.userFeed);
 
 export default router;

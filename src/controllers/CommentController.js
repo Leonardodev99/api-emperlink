@@ -8,7 +8,8 @@ class CommentController {
   // 📌 Criar comentário
   async store(req, res) {
     try {
-      const { user_id, post_id, content } = req.body;
+      const user_id = req.userId; // 🔐 vem do token
+      const { post_id, content } = req.body;
 
       const user = await User.findByPk(user_id);
       const post = await Post.findByPk(post_id);
@@ -120,6 +121,12 @@ class CommentController {
         });
       }
 
+      if (comment.user_id !== req.userId && req.userRole !== 'company') {
+        return res.status(403).json({
+          error: 'Não tem permissão para editar este comentário'
+        });
+      }
+
       await comment.update(req.body);
 
       return res.json({
@@ -146,7 +153,11 @@ class CommentController {
           error: 'Comentário não encontrado'
         });
       }
-
+      if (comment.user_id !== req.userId && req.userRole !== 'company') {
+        return res.status(403).json({
+          error: 'Não tem permissão para remover este comentário'
+        });
+      }
       await comment.destroy();
 
       return res.json({

@@ -4,27 +4,32 @@ import Post from '../models/Post.js';
 
 class ReactionController {
 
-  // Criar reação
+  // Criar/atualizar reação
   async store(req, res) {
     try {
-      const { user_id, post_id, type } = req.body;
+
+      const user_id = req.userId;
+      const { post_id, type } = req.body;
+
+      const allowedTypes = ['like', 'love', 'haha', 'angry', 'sad'];
+
+      if (!allowedTypes.includes(type)) {
+        return res.status(400).json({
+          error: 'Tipo de reação inválido'
+        });
+      }
 
       const user = await User.findByPk(user_id);
       const post = await Post.findByPk(post_id);
 
       if (!user) {
-        return res.status(404).json({
-          error: 'Utilizador não encontrado'
-        });
+        return res.status(404).json({ error: 'Utilizador não encontrado' });
       }
 
       if (!post) {
-        return res.status(404).json({
-          error: 'Post não encontrado'
-        });
+        return res.status(404).json({ error: 'Post não encontrado' });
       }
 
-      // verificar se já reagiu
       const existingReaction = await Reaction.findOne({
         where: { user_id, post_id }
       });
@@ -53,9 +58,10 @@ class ReactionController {
     }
   }
 
-  // Listar reações de um post
+  // Listar reações
   async reactionsByPost(req, res) {
     try {
+
       const { post_id } = req.params;
 
       const reactions = await Reaction.findAll({
@@ -79,9 +85,10 @@ class ReactionController {
     }
   }
 
-  // Contagem de reações por tipo
+  // Contagem por tipo
   async countByType(req, res) {
     try {
+
       const { post_id } = req.params;
 
       const reactions = await Reaction.findAll({
@@ -91,8 +98,8 @@ class ReactionController {
 
       const count = {};
 
-      reactions.forEach((reaction) => {
-        count[reaction.type] = (count[reaction.type] || 0) + 1;
+      reactions.forEach(r => {
+        count[r.type] = (count[r.type] || 0) + 1;
       });
 
       return res.json(count);
@@ -108,6 +115,8 @@ class ReactionController {
   // Remover reação
   async delete(req, res) {
     try {
+
+      const user_id = req.userId;
       const { id } = req.params;
 
       const reaction = await Reaction.findByPk(id);
@@ -115,6 +124,12 @@ class ReactionController {
       if (!reaction) {
         return res.status(404).json({
           error: 'Reação não encontrada'
+        });
+      }
+
+      if (reaction.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para remover esta reação'
         });
       }
 

@@ -9,17 +9,10 @@ class MessageController {
   // 📌 Enviar mensagem
   async store(req, res) {
     try {
+      const sender_id = req.userId; // 🔐 vem do token
+      const { receiver_id, content } = req.body;
 
-      const { sender_id, receiver_id, content } = req.body;
-
-      const sender = await User.findByPk(sender_id);
       const receiver = await User.findByPk(receiver_id);
-
-      if (!sender) {
-        return res.status(404).json({
-          error: 'Remetente não encontrado'
-        });
-      }
 
       if (!receiver) {
         return res.status(404).json({
@@ -33,34 +26,33 @@ class MessageController {
         content
       });
 
-      // 🔥 SOCKET EVENT (tempo real)
+      // 🔥 SOCKET (tempo real)
       const io = getIO();
       io.to(receiver_id).emit('new_message', message);
 
-      // 🔔 NOTIFICAÇÃO AUTOMÁTICA
+      // 🔔 NOTIFICAÇÃO
       if (sender_id !== receiver_id) {
         await NotificationService.send({
-          user_id: receiver_id,     // quem recebe
+          user_id: receiver_id,
           type: 'new_message',
-          reference_id: message.id  // referência da mensagem
+          reference_id: message.id
         });
       }
 
       return res.status(201).json(message);
 
     } catch (error) {
-
       return res.status(400).json({
         errors: error.errors?.map(err => err.message) || [error.message]
       });
-
     }
   }
 
-  // 📌 Listar conversa entre dois utilizadores
+  // 📌 Conversa (apenas do utilizador autenticado)
   async conversation(req, res) {
     try {
-      const { user1, user2 } = req.params;
+      const user1 = req.userId; // 🔐
+      const { user2 } = req.params;
 
       const messages = await Message.findAll({
         where: {
@@ -82,10 +74,10 @@ class MessageController {
     }
   }
 
-  // 📌 Inbox (todas conversas do utilizador)
+  // 📌 Inbox (do próprio utilizador)
   async inbox(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId; // 🔐
 
       const messages = await Message.findAll({
         where: {
@@ -107,10 +99,11 @@ class MessageController {
     }
   }
 
-  // 📌 Marcar mensagem como lida
+  // 📌 Marcar como lida (apenas destinatário)
   async markAsRead(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const message = await Message.findByPk(id);
 
@@ -120,9 +113,14 @@ class MessageController {
         });
       }
 
-      await message.update({
-        is_read: true
-      });
+      // 🔐 só quem recebeu pode marcar como lida
+      if (message.receiver_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão'
+        });
+      }
+
+      await message.update({ is_read: true });
 
       return res.json({
         message: 'Mensagem marcada como lida'
@@ -136,16 +134,27 @@ class MessageController {
     }
   }
 
-  // 📌 Remover mensagem
+  // 📌 Remover mensagem (sender ou receiver)
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const message = await Message.findByPk(id);
 
       if (!message) {
         return res.status(404).json({
           error: 'Mensagem não encontrada'
+        });
+      }
+
+      // 🔐 só participantes podem apagar
+      if (
+        message.sender_id !== user_id &&
+        message.receiver_id !== user_id
+      ) {
+        return res.status(403).json({
+          error: 'Sem permissão'
         });
       }
 

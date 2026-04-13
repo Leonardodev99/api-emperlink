@@ -7,8 +7,8 @@ class ReportController {
   async store(req, res) {
     try {
 
+      const reporter_id = req.userId;
       const {
-        reporter_id,
         reported_user_id,
         post_id,
         comment_id,
@@ -21,6 +21,16 @@ class ReportController {
         return res.status(404).json({
           error: 'Utilizador que denuncia não encontrado'
         });
+      }
+
+      if (reported_user_id) {
+        const reportedUser = await User.findByPk(reported_user_id);
+
+        if (!reportedUser) {
+          return res.status(404).json({
+            error: 'Utilizador denunciado não encontrado'
+          });
+        }
       }
 
       const report = await Report.create({
@@ -41,7 +51,7 @@ class ReportController {
     }
   }
 
-  // Listar todas as denúncias
+  // Listar denúncias (ADMIN)
   async index(req, res) {
     try {
 
@@ -71,13 +81,26 @@ class ReportController {
     }
   }
 
-  // Ver denúncia específica
+  // Ver denúncia
   async show(req, res) {
     try {
 
       const { id } = req.params;
 
-      const report = await Report.findByPk(id);
+      const report = await Report.findByPk(id, {
+        include: [
+          {
+            model: User,
+            as: 'reporter',
+            attributes: ['id', 'name']
+          },
+          {
+            model: User,
+            as: 'reportedUser',
+            attributes: ['id', 'name']
+          }
+        ]
+      });
 
       if (!report) {
         return res.status(404).json({
@@ -95,12 +118,20 @@ class ReportController {
     }
   }
 
-  // Atualizar estado da denúncia (admin)
+  // Atualizar estado (ADMIN)
   async updateStatus(req, res) {
     try {
 
       const { id } = req.params;
       const { status } = req.body;
+
+      const allowedStatus = ['pending', 'reviewed', 'rejected', 'resolved'];
+
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({
+          error: 'Status inválido'
+        });
+      }
 
       const report = await Report.findByPk(id);
 
@@ -118,13 +149,14 @@ class ReportController {
       });
 
     } catch (error) {
-      return res.status(400).json({
-        errors: error.errors?.map(err => err.message) || [error.message]
+      console.log(error);
+      return res.status(500).json({
+        error: 'Erro ao atualizar denúncia'
       });
     }
   }
 
-  // Remover denúncia
+  // Remover denúncia (ADMIN)
   async delete(req, res) {
     try {
 

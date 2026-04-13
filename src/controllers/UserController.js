@@ -134,6 +134,12 @@ class UserController {
         });
       }
 
+      if (req.userId !== id && req.userRole !== 'company') {
+        return res.status(403).json({
+          error: 'Só pode editar o próprio perfil'
+        });
+      }
+
       await user.update(req.body);
 
       return res.json({

@@ -16,7 +16,9 @@ class PostController {
         const matches = text.match(/#([\p{L}\p{N}_]+)/gu);
         return matches ? matches.map(tag => tag.toLowerCase().replace('#', '')) : [];
       };
-      const { user_id, content } = req.body;
+
+      const user_id = req.userId; // 🔐 vem do token
+      const { content } = req.body;
 
       const user = await User.findByPk(user_id);
 
@@ -31,6 +33,7 @@ class PostController {
         content
       });
 
+      // 📸 imagens
       if (req.files && req.files.length > 0) {
         const images = req.files.map(file => ({
           post_id: post.id,
@@ -74,7 +77,6 @@ class PostController {
       });
     }
   }
-
 
 
   // 📌 Listar posts
@@ -171,7 +173,7 @@ class PostController {
   // 📌 Listar posts de um utilizador
   async postsByUser(req, res) {
     try {
-      const { user_id } = req.params;
+      const user_id = req.userId;
 
       const posts = await Post.findAll({
         where: { user_id },
@@ -202,12 +204,19 @@ class PostController {
   async update(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const post = await Post.findByPk(id);
 
       if (!post) {
         return res.status(404).json({
           error: 'Post não encontrado'
+        });
+      }
+
+      if (post.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para editar este post'
         });
       }
 
@@ -229,12 +238,19 @@ class PostController {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const post = await Post.findByPk(id);
 
       if (!post) {
         return res.status(404).json({
           error: 'Post não encontrado'
+        });
+      }
+
+      if (post.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para remover este post'
         });
       }
 

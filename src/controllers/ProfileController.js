@@ -6,7 +6,7 @@ class ProfileController {
   // 📌 Criar perfil
   async store(req, res) {
     try {
-      const { user_id } = req.body;
+      const user_id = req.userId; // 🔐 do token
 
       const user = await User.findByPk(user_id);
 
@@ -16,7 +16,21 @@ class ProfileController {
         });
       }
 
-      const profile = await Profile.create(req.body);
+      // ❗ evitar duplicação
+      const existingProfile = await Profile.findOne({
+        where: { user_id }
+      });
+
+      if (existingProfile) {
+        return res.status(400).json({
+          error: 'Perfil já existe para este utilizador'
+        });
+      }
+
+      const profile = await Profile.create({
+        ...req.body,
+        user_id
+      });
 
       return res.status(201).json(profile);
 
@@ -92,7 +106,7 @@ class ProfileController {
           {
             model: User,
             as: 'user',
-            attributes: ['id', 'name', 'email', 'user_type']
+            attributes: ['id', 'name', 'email', 'user_type', 'avatar']
           }
         ]
       });
@@ -117,12 +131,20 @@ class ProfileController {
   async update(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const profile = await Profile.findByPk(id);
 
       if (!profile) {
         return res.status(404).json({
           error: 'Perfil não encontrado'
+        });
+      }
+
+      // 🔐 só dono pode editar
+      if (profile.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para editar este perfil'
         });
       }
 
@@ -142,9 +164,9 @@ class ProfileController {
 
   async uploadAvatar(req, res) {
     try {
-      const { id } = req.params;
+      const user_id = req.userId;
 
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(user_id);
 
       if (!user) {
         return res.status(404).json({
@@ -179,12 +201,19 @@ class ProfileController {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      const user_id = req.userId;
 
       const profile = await Profile.findByPk(id);
 
       if (!profile) {
         return res.status(404).json({
           error: 'Perfil não encontrado'
+        });
+      }
+
+      if (profile.user_id !== user_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para remover este perfil'
         });
       }
 

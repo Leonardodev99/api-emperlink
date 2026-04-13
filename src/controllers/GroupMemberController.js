@@ -4,20 +4,11 @@ import User from '../models/User.js';
 
 class GroupMemberController {
 
-  // Entrar num grupo
+  // 📌 Entrar num grupo
   async join(req, res) {
     try {
-
       const { group_id } = req.params;
-      const { user_id } = req.body;
-
-      const user = await User.findByPk(user_id);
-
-      if (!user) {
-        return res.status(404).json({
-          error: 'Utilizador não encontrado'
-        });
-      }
+      const user_id = req.userId; // 🔐 do token
 
       const group = await Group.findByPk(group_id);
 
@@ -28,15 +19,12 @@ class GroupMemberController {
       }
 
       const memberExists = await GroupMember.findOne({
-        where: {
-          group_id,
-          user_id
-        }
+        where: { group_id, user_id }
       });
 
       if (memberExists) {
         return res.status(400).json({
-          error: 'Utilizador já é membro deste grupo'
+          error: 'Já és membro deste grupo'
         });
       }
 
@@ -56,23 +44,19 @@ class GroupMemberController {
     }
   }
 
-  // Sair do grupo
+  // 📌 Sair do grupo
   async leave(req, res) {
     try {
-
       const { group_id } = req.params;
-      const { user_id } = req.body;
+      const user_id = req.userId; // 🔐
 
       const member = await GroupMember.findOne({
-        where: {
-          group_id,
-          user_id
-        }
+        where: { group_id, user_id }
       });
 
       if (!member) {
         return res.status(404).json({
-          error: 'Utilizador não é membro deste grupo'
+          error: 'Não és membro deste grupo'
         });
       }
 
@@ -90,10 +74,9 @@ class GroupMemberController {
     }
   }
 
-  // Listar membros do grupo
+  // 📌 Listar membros do grupo
   async members(req, res) {
     try {
-
       const { group_id } = req.params;
 
       const members = await GroupMember.findAll({
@@ -116,18 +99,30 @@ class GroupMemberController {
     }
   }
 
-  // Promover membro a admin
+  // 📌 Promover membro (apenas criador/admin)
   async promote(req, res) {
     try {
-
       const { group_id } = req.params;
-      const { user_id } = req.body;
+      const { user_id } = req.body; // quem será promovido
+      const requester_id = req.userId; // quem está a fazer ação
+
+      const group = await Group.findByPk(group_id);
+
+      if (!group) {
+        return res.status(404).json({
+          error: 'Grupo não encontrado'
+        });
+      }
+
+      // 🔐 só criador pode promover (podes evoluir depois para admin)
+      if (group.creator_id !== requester_id) {
+        return res.status(403).json({
+          error: 'Sem permissão para promover membros'
+        });
+      }
 
       const member = await GroupMember.findOne({
-        where: {
-          group_id,
-          user_id
-        }
+        where: { group_id, user_id }
       });
 
       if (!member) {
@@ -136,9 +131,7 @@ class GroupMemberController {
         });
       }
 
-      await member.update({
-        role: 'admin'
-      });
+      await member.update({ role: 'admin' });
 
       return res.json({
         message: 'Membro promovido a admin',

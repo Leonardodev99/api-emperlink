@@ -12,8 +12,8 @@ class FeedController {
   async userFeed(req, res) {
     try {
 
-      const { user_id } = req.params;
-
+      //const { user_id } = req.params;
+      const user_id = req.userId;
       // utilizadores que o user segue
       const follows = await Follow.findAll({
         where: { follower_id: user_id },
@@ -69,11 +69,13 @@ class FeedController {
 
   // 🌍 Feed global (posts recentes da rede)
   async globalFeed(req, res) {
-
     try {
 
-      const posts = await Post.findAll({
+      const { page = 1 } = req.query;
+      const limit = 10;
+      const offset = (page - 1) * limit;
 
+      const posts = await Post.findAll({
         include: [
           {
             model: User,
@@ -91,10 +93,9 @@ class FeedController {
             through: { attributes: [] }
           }
         ],
-
         order: [['created_at', 'DESC']],
-
-        limit: 50
+        limit,
+        offset
       });
 
       return res.json(posts);
@@ -105,7 +106,6 @@ class FeedController {
         error: error.message
       });
     }
-
   }
 
   // 👥 Feed de grupos
@@ -113,7 +113,7 @@ class FeedController {
 
     try {
 
-      const { user_id } = req.params;
+      const user_id = req.userId;
 
       const groups = await GroupMember.findAll({
         where: { user_id },

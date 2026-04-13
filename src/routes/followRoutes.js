@@ -1,15 +1,25 @@
 import { Router } from 'express';
 import FollowController from '../controllers/FollowController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = new Router();
 
+// 🔐 proteger tudo
+router.use(authMiddleware);
+
+// 📌 Seguir
 router.post('/', FollowController.follow);
+
+// 📌 Deixar de seguir
 router.delete('/', FollowController.unfollow);
 
-router.get('/users/:user_id/followers', FollowController.followers);
+// 📌 Meus seguidores
+router.get('/followers', FollowController.followers);
 
-router.get('/users/:user_id/following', FollowController.following);
+// 📌 Quem eu sigo
+router.get('/following', FollowController.following);
 
-router.get('/check/:follower_id/:following_id', FollowController.checkFollow);
+// 📌 Verificar se sigo alguém
+router.get('/check/:following_id', FollowController.checkFollow);
 
 export default router;
