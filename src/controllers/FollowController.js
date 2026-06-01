@@ -7,7 +7,7 @@ class FollowController {
   // 📌 Seguir utilizador
   async follow(req, res) {
     try {
-      const follower_id = req.userId; // 🔐 vem do token
+      const follower_id = req.userId;
       const { following_id } = req.body;
 
       if (follower_id === following_id) {

@@ -15,8 +15,8 @@ export default class Report extends Model {
           allowNull: false,
           validate: {
             len: {
-              args: [5, 1000],
-              msg: 'Motivo inválido'
+              args: [3, 1000],
+              msg: 'O motivo deve conter entre 3 e 1000 caracteres.'
             }
           }
         },
@@ -38,8 +38,9 @@ export default class Report extends Model {
   }
 
   static associate(models) {
+    // Associações:
     this.belongsTo(models.User, { foreignKey: 'reporter_id', as: 'reporter' });
-    this.belongsTo(models.User, { foreignKey: 'reported_user_id', as: 'reported' });
+    this.belongsTo(models.User, { foreignKey: 'reported_user_id', as: 'reportedUser' });
     this.belongsTo(models.Post, { foreignKey: 'post_id', as: 'post' });
   }
 }

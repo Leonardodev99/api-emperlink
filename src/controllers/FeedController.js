@@ -47,6 +47,7 @@ class FeedController {
           },
           {
             model: Hashtag,
+            as: 'hashtags',
             attributes: ['name'],
             through: { attributes: [] }
           }
@@ -89,6 +90,7 @@ class FeedController {
           },
           {
             model: Hashtag,
+            as: 'hashtags',
             attributes: ['name'],
             through: { attributes: [] }
           }
@@ -133,6 +135,17 @@ class FeedController {
             model: User,
             as: 'author',
             attributes: ['id', 'name', 'profile_image']
+          },
+          {
+            model: PostImage,
+            as: 'images',
+            attributes: ['id', 'image_url']
+          },
+          {
+            model: Hashtag,
+            as: 'hashtags',
+            attributes: ['name'],
+            through: { attributes: [] }
           }
         ],
         order: [['created_at', 'DESC']]

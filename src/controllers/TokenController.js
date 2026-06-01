@@ -39,7 +39,7 @@ class TokenController {
         {
           id: user.id,
           email: user.email,
-          tipo: user.user_type // 👈 Perfil do usuário dentro do token
+          user_type: user.user_type
         },
         process.env.TOKEN_SECRET,
         {
@@ -53,10 +53,9 @@ class TokenController {
           id: user.id,
           name: user.nome,
           email: user.email,
-          user_type: user.tipo
+          user_type: user.user_type
         }
       });
-
     } catch (error) {
       console.log(error);
       return res.status(500).json({

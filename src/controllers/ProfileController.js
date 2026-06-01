@@ -6,7 +6,7 @@ class ProfileController {
   // 📌 Criar perfil
   async store(req, res) {
     try {
-      const user_id = req.userId; // 🔐 do token
+      const user_id = req.userId;
 
       const user = await User.findByPk(user_id);
 
@@ -16,7 +16,7 @@ class ProfileController {
         });
       }
 
-      // ❗ evitar duplicação
+      // ❗ Evitar duplicação de perfil
       const existingProfile = await Profile.findOne({
         where: { user_id }
       });
@@ -27,8 +27,16 @@ class ProfileController {
         });
       }
 
+      // 💡 Se a bio veio no body,
+      if (req.body.bio !== undefined) {
+        user.bio = req.body.bio;
+        await user.save();
+      }
+
+      // Cria os campos nativos do perfil (phone, address)
       const profile = await Profile.create({
-        ...req.body,
+        phone: req.body.phone,
+        address: req.body.address,
         user_id
       });
 
@@ -127,13 +135,61 @@ class ProfileController {
     }
   }
 
+  // 📌 Buscar perfil do usuário logado (via Token)
+  async showSelf(req, res) {
+    try {
+      const user_id = req.userId;
+      console.log('🔐 USER_ID DO TOKEN (showSelf):', user_id);
+
+      const profile = await Profile.findOne({
+        where: { user_id },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'name', 'email', 'user_type', 'avatar', 'bio', 'profile_image'] // ✅ Adicione profile_image
+          }
+        ]
+      });
+
+      if (!profile) {
+        return res.status(404).json({
+          error: 'Perfil não encontrado para este utilizador'
+        });
+      }
+
+      // 🔍 RETORNE O USER DO PROFILE, NÃO OUTRO UTILIZADOR!
+      return res.json({
+        id: profile.user.id,
+        name: profile.user.name,
+        email: profile.user.email,
+        user_type: profile.user.user_type,
+        avatar: profile.user.avatar,
+        bio: profile.user.bio,
+        profile_image: profile.user.profile_image,
+        phone: profile.phone,
+        address: profile.address,
+        created_at: profile.created_at,
+        updated_at: profile.updated_at
+      });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: 'Erro ao obter perfil do utilizador logado'
+      });
+    }
+  }
+
   // 📌 Atualizar perfil
   async update(req, res) {
     try {
       const { id } = req.params;
       const user_id = req.userId;
 
-      const profile = await Profile.findByPk(id);
+      const profile = await Profile.findByPk(id, {
+        include: [{ model: User, as: 'user' }]
+      });
 
       if (!profile) {
         return res.status(404).json({
@@ -141,18 +197,32 @@ class ProfileController {
         });
       }
 
-      // 🔐 só dono pode editar
+      // 🔐 Só o dono pode editar
       if (profile.user_id !== user_id) {
         return res.status(403).json({
           error: 'Sem permissão para editar este perfil'
         });
       }
 
-      await profile.update(req.body);
+      // 💡 Atualiza a bio no utilizador associado, se enviada
+      if (req.body.bio !== undefined && profile.user) {
+        await profile.user.update({ bio: req.body.bio });
+      }
+
+      // Atualiza os restantes campos na tabela profiles (phone, address)
+      await profile.update({
+        phone: req.body.phone,
+        address: req.body.address
+      });
+
+      // Recarrega o perfil com os dados atualizados para devolver ao frontend
+      const updatedProfile = await Profile.findByPk(id, {
+        include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email', 'user_type', 'avatar', 'bio'] }]
+      });
 
       return res.json({
         message: 'Perfil atualizado com sucesso',
-        profile
+        profile: updatedProfile
       });
 
     } catch (error) {

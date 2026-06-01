@@ -6,10 +6,17 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 const router = new Router();
 
 // 🔐 TODAS PROTEGIDAS
+// ... outras rotas ...
+
+// 🔐 TODAS PROTEGIDAS
 router.use(authMiddleware);
+
+// 🔍 Buscar perfil do próprio usuário logado (Coloque ANTES de /:id)
+router.get('/me', ProfileController.showSelf);
 
 // 📌 Criar perfil
 router.post('/', ProfileController.store);
+
 
 // 📸 Avatar (não precisa ID)
 router.post('/avatar', upload.single('file'), ProfileController.uploadAvatar);

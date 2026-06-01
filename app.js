@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { resolve } from 'path';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -32,6 +33,13 @@ class App {
   }
 
   middlewares() {
+
+    // 💡 Configuração básica do CORS (permite qualquer origem temporariamente para testes)
+    this.app.use(cors());
+
+    // Algo mais seguro para o futuro:
+    // this.app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(express.static(resolve(__dirname, 'uploads')));
@@ -47,7 +55,7 @@ class App {
     this.app.use('/follow', followRoutes);
     this.app.use('/notifications', notificationRoutes);
     this.app.use('/groups', groupRoutes);
-    this.app.use('/groups', groupMemberRoutes);
+    this.app.use('/members', groupMemberRoutes);
     this.app.use('/ratings', ratingRoutes);
     this.app.use('/reports', reportRoutes);
     this.app.use('/feed', feedRoutes);

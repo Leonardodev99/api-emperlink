@@ -11,7 +11,7 @@ class ReactionController {
       const user_id = req.userId;
       const { post_id, type } = req.body;
 
-      const allowedTypes = ['like', 'love', 'haha', 'angry', 'sad'];
+      const allowedTypes = ['like', 'love', 'support', 'insightful'];
 
       if (!allowedTypes.includes(type)) {
         return res.status(400).json({

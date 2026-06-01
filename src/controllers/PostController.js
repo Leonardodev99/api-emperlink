@@ -101,7 +101,7 @@ class PostController {
             model: Hashtag,
             as: 'hashtags',
             attributes: ['id', 'name'],
-            through: { attributes: [] } // remove tabela pivot da resposta
+            through: { attributes: [] }
           },
           {
             model: Reaction,
@@ -145,7 +145,7 @@ class PostController {
             model: Hashtag,
             as: 'hashtags',
             attributes: ['id', 'name'],
-            through: { attributes: [] } // remove tabela pivot da resposta
+            through: { attributes: [] }
           },
           {
             model: Reaction,
@@ -177,15 +177,11 @@ class PostController {
 
       const posts = await Post.findAll({
         where: { user_id },
+
         include: [
-          {
-            model: PostImage,
-            as: 'images'
-          },
-          {
-            model: Reaction,
-            as: 'reactions'
-          }
+          { model: PostImage, as: 'images' },
+          { model: Reaction, as: 'reactions' },
+          { model: Hashtag, as: 'hashtags', attributes: ['id', 'name'], through: { attributes: [] } }
         ],
         order: [['created_at', 'DESC']]
       });

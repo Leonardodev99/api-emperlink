@@ -28,7 +28,7 @@ export default class Hashtag extends Model {
         tableName: 'hashtags',
         underscored: true,
 
-        // ✅ AGORA ESTÁ CORRETO
+
         hooks: {
           beforeCreate: (hashtag) => {
             if (!hashtag.id) {

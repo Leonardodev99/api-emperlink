@@ -45,8 +45,10 @@ class ReportController {
       return res.status(201).json(report);
 
     } catch (error) {
+      console.error('❌ ERRO NO STORE DE DENÚNCIAS:', error);
       return res.status(400).json({
-        errors: error.errors?.map(err => err.message) || [error.message]
+        error: 'Erro interno ao processar a denúncia',
+        details: error.errors?.map(err => err.message) || [error.message]
       });
     }
   }
@@ -55,6 +57,7 @@ class ReportController {
   async index(req, res) {
     try {
 
+      // Dentro do ReportController.js -> método index
       const reports = await Report.findAll({
         include: [
           {

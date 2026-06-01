@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import Message from './models/Message.js'; // Seu model de mensagens
+import Message from './models/Message.js';
 import User from './models/User.js';
 
 let io;
@@ -88,6 +88,12 @@ export function initSocket(server) {
       console.log(`Usuário ${socket.userId} entrou no grupo ${group_id}`);
     });
 
+    // --- Notificação recebida em tempo real ---
+    socket.on('notification', (notification) => {
+      console.log('🔔 Notificação recebida via socket:', notification);
+      // O frontend pode emitir um evento para atualizar o estado
+    });
+
     socket.on('group_message', async ({ group_id, sender_id, content }) => {
       try {
         // Aqui você pode salvar no banco caso queira persistência
@@ -105,6 +111,8 @@ export function initSocket(server) {
     });
 
   });
+
+
 
   return io;
 }

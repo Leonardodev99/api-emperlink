@@ -8,7 +8,7 @@ class CommentController {
   // 📌 Criar comentário
   async store(req, res) {
     try {
-      const user_id = req.userId; // 🔐 vem do token
+      const user_id = req.userId;
       const { post_id, content } = req.body;
 
       const user = await User.findByPk(user_id);
@@ -35,7 +35,7 @@ class CommentController {
       // 🔔 NOTIFICAÇÃO AUTOMÁTICA
       if (post.user_id !== user_id) {
         await NotificationService.send({
-          user_id: post.user_id,   // dono do post
+          user_id: post.user_id,
           type: 'new_comment',
           reference_id: comment.id
         });

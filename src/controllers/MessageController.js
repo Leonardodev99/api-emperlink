@@ -10,6 +10,11 @@ class MessageController {
   async store(req, res) {
     try {
       const sender_id = req.userId; // 🔐 vem do token
+      console.log('🔐 SENDER_ID DO TOKEN:', sender_id);
+
+      // 🔍 NOVO DEBUG: Verificar o utilizador atual
+      const user = await User.findByPk(sender_id);
+      console.log('🔍 USER DO TOKEN:', user?.id, user?.email);
       const { receiver_id, content } = req.body;
 
       const receiver = await User.findByPk(receiver_id);
@@ -39,7 +44,16 @@ class MessageController {
         });
       }
 
-      return res.status(201).json(message);
+      // ✅ RETORNAR A MENSAGEM COMPLETA COM TODAS AS PROPRIEDADES
+      return res.status(201).json({
+        id: message.id,
+        content: message.content,
+        is_read: message.is_read,
+        sender_id: message.sender_id,
+        receiver_id: message.receiver_id,
+        created_at: message.created_at,
+        updated_at: message.updated_at
+      });
 
     } catch (error) {
       return res.status(400).json({
@@ -75,9 +89,10 @@ class MessageController {
   }
 
   // 📌 Inbox (do próprio utilizador)
+  // Procura o método inbox dentro de src/controllers/MessageController.js e atualiza:
   async inbox(req, res) {
     try {
-      const user_id = req.userId; // 🔐
+      const user_id = req.userId;
 
       const messages = await Message.findAll({
         where: {
@@ -86,6 +101,10 @@ class MessageController {
             { receiver_id: user_id }
           ]
         },
+        include: [
+          { model: User, as: 'sender', attributes: ['id', 'name', 'profile_image'] },
+          { model: User, as: 'receiver', attributes: ['id', 'name', 'profile_image'] }
+        ],
         order: [['created_at', 'DESC']]
       });
 
